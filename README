@@ -1,0 +1,38 @@
+This repository supplies ipv4 sets for analysis and filtering
+purposes. The bulk of the code resides in the library, libbitset. This
+contains routimes for creating bitset variables for adding both
+individual IPv4 addresses and IPv4 cidr blocks to them.  It is
+possible to save bitsets to files and to load them from files created
+by the save routine. It is also possible to compare bit sets for
+equality.  A routine for describing a bitset based on its internal
+structure is also included.
+
+Programs to create bitsets from an ascii text file and to list a
+bitset as an ascii text file are also included.
+
+Internally, the implementation uses an array of 512 pointers to /9
+cidr blocks as its top level. Both Full and Empty /9s are completely
+represented at this level.  Partially full /9s are represented by
+pointers to a block of 512 /18 cidr blocks.  At this level, there are
+also 512 pointers with full and empty /18s being designated by
+distinguished pointer values.  A partially full /18 is represented by
+a block of 2^14 bits or 512 32bit words, each word representing a /27.
+
+Externally, a bitset is represented by
+1) a header that contains housekeeping information such as the total
+   number of addresses in the set, the number of full and parital /9s
+   and /18s, etc.
+2) The prefixes for full /9 blocks, if any
+3) The prefixes for full /18 blocks, if any
+4) Full and partial /27 sequences consisting of
+   a) a 32 bit header with a 27 bit /27 prefix, a bit to indicate
+      whether the sequence consnsts of full or partial /27s, and a 4
+      bit count (interpreted as 1-16) of the /27s covered by the
+      sequence. If the /27s are full, no detail blocks are needed.
+   b) If the sequence contasins partial blocks, up to 16 detail
+      blocks, each representing a bitmap for a /27 follow the header
+      block. 
+
+John McHugh - RedJack, LLC
+March 2012
+
